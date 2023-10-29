@@ -24,7 +24,12 @@ public class VertexBuffer
     public Span<Vertex> ConvertToSpan()
     {
         Span<Vertex> result = new Span<Vertex>(_vertices.ToArray());
-        _vertices.Clear();
+        Clear();
         return result;
+    }
+
+    public void Clear()
+    {
+        _vertices.Clear();
     }
 }

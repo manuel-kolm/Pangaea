@@ -13,13 +13,14 @@ internal static class Program
     private static IWindow window;
     private static Context context;
     private static Canvas canvas;
+    private static float degrees = 0;
     
     private static void Main(string[] args)
     {
         var options = WindowOptions.Default;
         options.Size = new Vector2D<int>(800, 600);
         options.Title = "Pangaea.Simple";
-        options.IsEventDriven = true;
+        options.FramesPerSecond = 60;
         window = Window.Create(options);
 
         window.Load += OnLoad;
@@ -37,12 +38,14 @@ internal static class Program
 
     private static void OnRender(double delta)
     {
+        degrees += (float) delta * 10f;
+        
         Size windowSize = new Size()
         {
             Width = window.Size.X,
             Height = window.Size.Y
         };
-        canvas.BeginFrame(Color.Teal, windowSize);
+        canvas.BeginFrame(in windowSize);
 
         Rect rect = new Rect()
         {
@@ -61,8 +64,9 @@ internal static class Program
             W = 150,
             H = 150,
         };
+        Vector2 center = new Vector2(325, 325);
         Paint paint2 = new Paint();
-        canvas.DrawRect(in rect2, in paint2);
+        canvas.DrawRect(in rect2, in center, degrees, in paint2);
         
         Rect rect3 = new Rect()
         {
@@ -82,7 +86,7 @@ internal static class Program
             H = 150,
         };
         Paint paint4 = new Paint();
-        canvas.DrawRect(in rect4, in paint4);
+        canvas.DrawRect(in rect4, degrees, in paint4);
         
         Rect rect5 = new Rect()
         {
@@ -93,9 +97,8 @@ internal static class Program
         };
         Paint paint5 = new Paint();
         canvas.DrawRect(in rect5, in paint5);
-
-        Vector2 a = new Vector2(150, 450);
-        canvas.DrawCircle(in a, 100f);
+        
+        canvas.DrawCircle(new Vector2(150, 400), 100f, new Paint());
         
         canvas.EndFrame();
     }

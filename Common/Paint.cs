@@ -1,4 +1,6 @@
-﻿namespace Pangaea.Common;
+﻿using System.Numerics;
+
+namespace Pangaea.Common;
 
 public struct Paint
 {

@@ -1,10 +1,10 @@
-﻿using System.Drawing;
-using System.Numerics;
+﻿using System.Numerics;
 using Pangaea.Common;
 using Pangaea.Rendering.OpenGL.Buffers;
 using Pangaea.Rendering.OpenGL.Calls;
 using Pangaea.Rendering.OpenGL.Shaders;
 using Silk.NET.OpenGL;
+using Color = System.Drawing.Color;
 using Shader = Pangaea.Rendering.OpenGL.Shaders.Shader;
 using Size = Pangaea.Common.Size;
 
@@ -45,13 +45,18 @@ public class OpenGLRenderer : IDisposable
         _gl.Viewport(0, 0, (uint) windowSize.Width, (uint) windowSize.Height);
     }
 
+    public void Cancel()
+    {
+        _vertexBuffer.Clear();
+    }
+
     public void Flush()
     {
         if (_drawCallQueue.IsEmpty())
             return;
         
         _shader.Use();
-        _shader.SetUniform("uViewSize", new Vector2(_window.Size.Width, _window.Size.Height));
+        _shader.SetUniform("viewSize", new Vector2(_window.Size.Width, _window.Size.Height));
         
         _vao.Bind();
         _vbo.Bind();
@@ -64,46 +69,19 @@ public class OpenGLRenderer : IDisposable
         _vao.Unbind();
     }
     
-    public void DrawRect(in Rect rect, in Paint paint)
+    public void AddVertices(in Vertex[] vertices, DrawCallType drawCallType)
     {
-        float a = rect.X;
-        float b = rect.Y;
-        float c = rect.X + rect.W;
-        float d = rect.Y + rect.H;
-        
-        Vertex[] vertices = new Vertex[]
+        DrawCall drawCall = drawCallType switch
         {
-            new Vertex(a, b, 0.0f, 0.0f),
-            new Vertex(c, b, 0.0f, 0.0f),
-            new Vertex(c, d, 0.0f, 0.0f),
-            new Vertex(c, d, 0.0f, 0.0f),
-            new Vertex(a, d, 0.0f, 0.0f),
-            new Vertex(a, b, 0.0f, 0.0f),
+            DrawCallType.Triangle => new TriangleDrawCall(_gl, _shader, _vertexBuffer.CurrentOffset(),
+                (uint) vertices.Length),
+            DrawCallType.TriangleFan => new CircleDrawCall(_gl, _shader, _vertexBuffer.CurrentOffset(),
+                (uint) vertices.Length),
+            _ => throw new NotImplementedException()
         };
-        
-        DrawCall drawCall = new TriangleDrawCall(_gl, _shader, _vertexBuffer.CurrentOffset(), (uint) vertices.Length);
         
         _drawCallQueue.Add(drawCall);
         _vertexBuffer.Add(vertices);
-    }
-
-    public void DrawCircle(in Vector2 center, float radius)
-    {
-        
-        float x = center.X;
-        float y = center.Y;
-        
-        float increment = 2.0f * MathF.PI / 60; // segments
-        List<Vertex> vertices = new List<Vertex>(61);
-        for (float currAngle = 0.0f; currAngle <= 2.0f * MathF.PI; currAngle += increment)
-        {
-            vertices.Add(new Vertex(radius * MathF.Cos(currAngle) + x, radius * MathF.Sin(currAngle) + y, 0f, 0f));
-        }
-        
-        DrawCall drawCall = new CircleDrawCall(_gl, _shader, _vertexBuffer.CurrentOffset(), (uint) vertices.Count);
-        
-        _vertexBuffer.Add(vertices.ToArray());
-        _drawCallQueue.Add(drawCall);
     }
     
     public void Dispose()
