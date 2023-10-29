@@ -1,10 +1,8 @@
-﻿using System.Drawing;
-using System.Numerics;
-using System.Security.Cryptography;
+﻿using System.Numerics;
 using Pangaea.Common;
 using Pangaea.Rendering;
 using Pangaea.Rendering.OpenGL;
-using Silk.NET.OpenGL;
+using Pangaea.Rendering.OpenGL.Calls;
 using Color = System.Drawing.Color;
 using Size = Pangaea.Common.Size;
 
@@ -77,8 +75,10 @@ public class Canvas
             new Vertex(p3.X, p3.Y, 0.0f, 0.0f),
             new Vertex(p4.X, p4.Y, 0.0f, 0.0f),
         };
+        
+        Vector2 center = new Vector2((p1.X + p2.X + p3.X + p4.X) * 0.25f, (p1.Y+ p2.Y + p3.Y + p4.Y) * 0.25f);
 
-        _renderer.AddVertices(vertices, DrawCallType.Triangle);
+        _renderer.AddVertices(vertices, DrawCallType.Triangle, center, new TriangleDrawCallParam());
     }
     
     public void DrawCircle(in Vector2 center, float radius, in Paint paint)
@@ -97,8 +97,13 @@ public class Canvas
             vertices[i] = new Vertex(radius * MathF.Cos(angle) + center.X, radius * MathF.Sin(angle) + center.Y, 0f, 0f);
             angle += increment;
         }
+
+        CircleDrawCallParam param = new CircleDrawCallParam();
         
-        _renderer.AddVertices(vertices, DrawCallType.TriangleFan);
+        if (paint.StrokeWidth.HasValue)
+            param.InnerRadius = radius - paint.StrokeWidth.Value;
+        
+        _renderer.AddVertices(vertices, DrawCallType.TriangleFan, center, param);
     }
 
     private static Vector2 Rotate(Vector2 point, Vector2 center, float degrees)

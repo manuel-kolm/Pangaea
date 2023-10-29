@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Numerics;
+﻿using System.Numerics;
 using Pangaea;
 using Pangaea.Common;
 using Silk.NET.Maths;
@@ -13,7 +12,7 @@ internal static class Program
     private static IWindow window;
     private static Context context;
     private static Canvas canvas;
-    private static float degrees = 0;
+    private static float degrees;
     
     private static void Main(string[] args)
     {
@@ -98,7 +97,10 @@ internal static class Program
         Paint paint5 = new Paint();
         canvas.DrawRect(in rect5, in paint5);
         
-        canvas.DrawCircle(new Vector2(150, 400), 100f, new Paint());
+        canvas.DrawCircle(new Vector2(150, 400), 100f, new Paint()
+        {
+            StrokeWidth = 5f
+        });
         
         canvas.EndFrame();
     }

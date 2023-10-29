@@ -69,14 +69,14 @@ public class OpenGLRenderer : IDisposable
         _vao.Unbind();
     }
     
-    public void AddVertices(in Vertex[] vertices, DrawCallType drawCallType)
+    public void AddVertices(in Vertex[] vertices, DrawCallType drawCallType, Vector2 center, DrawCallParam param)
     {
         DrawCall drawCall = drawCallType switch
         {
             DrawCallType.Triangle => new TriangleDrawCall(_gl, _shader, _vertexBuffer.CurrentOffset(),
-                (uint) vertices.Length),
+                (uint) vertices.Length, center),
             DrawCallType.TriangleFan => new CircleDrawCall(_gl, _shader, _vertexBuffer.CurrentOffset(),
-                (uint) vertices.Length),
+                (uint) vertices.Length, center, param),
             _ => throw new NotImplementedException()
         };
         
