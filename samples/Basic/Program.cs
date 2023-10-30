@@ -65,8 +65,8 @@ internal static class Program
         };
         Vector2 center = new Vector2(325, 325);
         Paint paint2 = new Paint();
-        canvas.DrawRect(in rect2, in center, degrees, in paint2);
-        
+        canvas.DrawRoundedRect(in rect2, in center, new Vector2(10, 10), degrees, in paint2);
+
         Rect rect3 = new Rect()
         {
             X = 400,
@@ -96,6 +96,16 @@ internal static class Program
         };
         Paint paint5 = new Paint();
         canvas.DrawRect(in rect5, in paint5);
+        
+        Rect rect6 = new Rect()
+        {
+            X = 600,
+            Y = 400,
+            W = 150,
+            H = 150,
+        };
+        Paint paint6 = new Paint();
+        canvas.DrawRoundedRect(in rect6, new Vector2(675, 475), new Vector2(40, 40), degrees, in paint6);
         
         canvas.DrawCircle(new Vector2(150, 400), 100f, new Paint()
         {

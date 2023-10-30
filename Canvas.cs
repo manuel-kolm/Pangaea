@@ -80,6 +80,121 @@ public class Canvas
 
         _renderer.AddVertices(vertices, DrawCallType.Triangle, center, new TriangleDrawCallParam());
     }
+
+    public void DrawRoundedRect(in Rect rect, in Vector2 radius, float degrees, in Paint paint)
+    {
+        Vector2 center = new Vector2(rect.X, rect.Y);
+        
+        DrawRoundedRect(in rect, in center, in radius, degrees, in paint);
+    }
+
+    public void DrawRoundedRect(in Rect rect, in Vector2 center, in Vector2 radius, float degrees, in Paint paint)
+    {
+        Vector2 p1 = new Vector2(rect.X, rect.Y) + radius;
+        Vector2 p2 = new Vector2(rect.X + rect.W, rect.Y) + new Vector2(-radius.X, radius.Y);
+        Vector2 p3 = new Vector2(rect.X, rect.Y + rect.H) + new Vector2(radius.X, -radius.Y);
+        Vector2 p4 = new Vector2(rect.X + rect.W, rect.Y + rect.H) - radius;
+
+        Vector2 r1 = Rotate(p1, center, degrees);
+        Vector2 r2 = Rotate(p2, center, degrees);
+        Vector2 r3 = Rotate(p3, center, degrees);
+        Vector2 r4 = Rotate(p4, center, degrees);
+
+        Vector2 r5 = Vector2.Normalize(r3 - r1) * (rect.W - radius.X) + r1;
+        Vector2 r6 = Vector2.Normalize(r4 - r2) * (rect.H - radius.Y) + r2;
+
+        Vector2 r7 = Vector2.Normalize(r2 - r1) * (rect.W - radius.X) + r1;
+        Vector2 r8 = Vector2.Normalize(r4 - r3) * (rect.W - radius.X) + r3;
+        
+        Vector2 r9 = Vector2.Normalize(r1 - r3) * (rect.H - radius.Y) + r3;
+        Vector2 r10 = Vector2.Normalize(r2 - r4) * (rect.H - radius.Y) + r4;
+        
+        Vector2 r11 = Vector2.Normalize(r1 - r2) * (rect.W - radius.X) + r2;
+        Vector2 r12 = Vector2.Normalize(r3 - r4) * (rect.W - radius.X) + r4;
+        
+        Vertex[] vertices = new Vertex[]
+        {
+            new Vertex(r1.X, r1.Y, 0.0f, 0.0f),
+            new Vertex(r2.X, r2.Y, 0.0f, 0.0f),
+            new Vertex(r4.X, r4.Y, 0.0f, 0.0f),
+            new Vertex(r1.X, r1.Y, 0.0f, 0.0f),
+            new Vertex(r3.X, r3.Y, 0.0f, 0.0f),
+            new Vertex(r4.X, r4.Y, 0.0f, 0.0f),
+
+            new Vertex(r1.X, r1.Y, 0.0f, 0.0f),
+            new Vertex(r3.X, r3.Y, 0.0f, 0.0f),
+            new Vertex(r12.X, r12.Y, 0.0f, 0.0f),
+            new Vertex(r1.X, r1.Y, 0.0f, 0.0f),
+            new Vertex(r11.X, r11.Y, 0.0f, 0.0f),
+            new Vertex(r12.X, r12.Y, 0.0f, 0.0f),
+            
+            new Vertex(r1.X, r1.Y, 0.0f, 0.0f),
+            new Vertex(r9.X, r9.Y, 0.0f, 0.0f),
+            new Vertex(r10.X, r10.Y, 0.0f, 0.0f),
+            new Vertex(r1.X, r1.Y, 0.0f, 0.0f),
+            new Vertex(r2.X, r2.Y, 0.0f, 0.0f),
+            new Vertex(r10.X, r10.Y, 0.0f, 0.0f),
+            
+            new Vertex(r2.X, r2.Y, 0.0f, 0.0f),
+            new Vertex(r7.X, r7.Y, 0.0f, 0.0f),
+            new Vertex(r8.X, r8.Y, 0.0f, 0.0f),
+            new Vertex(r2.X, r2.Y, 0.0f, 0.0f),
+            new Vertex(r4.X, r4.Y, 0.0f, 0.0f),
+            new Vertex(r8.X, r8.Y, 0.0f, 0.0f),
+            
+            new Vertex(r3.X, r3.Y, 0.0f, 0.0f),
+            new Vertex(r5.X, r5.Y, 0.0f, 0.0f),
+            new Vertex(r6.X, r6.Y, 0.0f, 0.0f),
+            new Vertex(r3.X, r3.Y, 0.0f, 0.0f),
+            new Vertex(r4.X, r4.Y, 0.0f, 0.0f),
+            new Vertex(r6.X, r6.Y, 0.0f, 0.0f),
+        };
+        
+        _renderer.AddVertices(vertices, DrawCallType.Triangle, center, new TriangleDrawCallParam());
+        
+        float increment = 2.0f * MathF.PI / 60;
+        float angleOffset = degrees * MathF.PI / 180f;
+        
+        List<Vertex> vertices2 = new List<Vertex>();
+        
+        float angle = 0f;
+        vertices2.Add(new Vertex(r4.X, r4.Y, 0f, 0f));
+        for (int i = 0; i < 16; ++i)
+        {
+            vertices2.Add(new Vertex(radius.X * MathF.Cos(angle + angleOffset) + r4.X,
+                radius.Y * MathF.Sin(angle + angleOffset) + r4.Y, 0f, 0f));
+            angle += increment;
+        }
+
+        angle = 15f * increment;
+        vertices2.Add(new Vertex(r3.X, r3.Y, 0f, 0f));
+        for (int i = 15; i < 31; ++i)
+        {
+            vertices2.Add(new Vertex(radius.X * MathF.Cos(angle + angleOffset) + r3.X,
+                radius.Y * MathF.Sin(angle + angleOffset) + r3.Y, 0f, 0f));
+            angle += increment;
+        }
+        
+        angle = 30f * increment;
+        vertices2.Add(new Vertex(r1.X, r1.Y, 0f, 0f));
+        for (int i = 30; i < 46; ++i)
+        {
+            vertices2.Add(new Vertex(radius.X * MathF.Cos(angle + angleOffset) + r1.X,
+                radius.Y * MathF.Sin(angle + angleOffset) + r1.Y, 0f, 0f));
+            angle += increment;
+        }
+        
+        angle = 45f * increment;
+        vertices2.Add(new Vertex(r2.X, r2.Y, 0f, 0f));
+        for (int i = 45; i < 61; ++i)
+        {
+            vertices2.Add(new Vertex(radius.X * MathF.Cos(angle + angleOffset) + r2.X,
+                radius.Y * MathF.Sin(angle + angleOffset) + r2.Y, 0f, 0f));
+            angle += increment;
+        }
+
+        _renderer.AddVertices(vertices2.ToArray(), DrawCallType.TriangleFan, center, new CircleDrawCallParam());
+    }
     
     public void DrawCircle(in Vector2 center, float radius, in Paint paint)
     {
@@ -104,6 +219,15 @@ public class Canvas
             param.InnerRadius = radius - paint.StrokeWidth.Value;
         
         _renderer.AddVertices(vertices, DrawCallType.TriangleFan, center, param);
+    }
+    
+    private static Vector2 Rotate(Vector2 point, float degrees)
+    {
+        float angle = degrees * MathF.PI / 180.0f;
+        return new Vector2(
+            MathF.Cos(angle) * (point.X) - MathF.Sin(angle) * (point.Y),
+            MathF.Sin(angle) * (point.X) + MathF.Cos(angle) * (point.Y)
+        );
     }
 
     private static Vector2 Rotate(Vector2 point, Vector2 center, float degrees)
