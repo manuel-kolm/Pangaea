@@ -29,6 +29,8 @@ public class OpenGLRenderer : IDisposable
         _vertexBuffer = new VertexBuffer();
         _drawCallQueue = new DrawCallQueue();
         _window = new Window();
+        
+        _gl.Enable(EnableCap.Multisample);
     }
     
     public void Clear(Color color)

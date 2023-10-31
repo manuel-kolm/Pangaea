@@ -20,6 +20,7 @@ internal static class Program
         options.Size = new Vector2D<int>(800, 600);
         options.Title = "Pangaea.Simple";
         options.FramesPerSecond = 60;
+        options.Samples = 4;
         window = Window.Create(options);
 
         window.Load += OnLoad;
